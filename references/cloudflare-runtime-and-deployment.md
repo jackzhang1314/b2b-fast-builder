@@ -174,19 +174,25 @@ ON inquiries(email_status, retry_count);
 
 ## 8. Pages 部署
 
-代表性流程：
+部署不得直接绕过项目质量闸门。代表性流程：
 
 ```bash
-npm run typecheck
-npm run lint
-npm test
-npm run build
+npm run quality
 
 npx wrangler pages project create "$PAGES_PROJECT_NAME"
 npx wrangler d1 create "$D1_DATABASE_NAME"
 npx wrangler d1 migrations apply "$D1_DATABASE_NAME" --remote
 npx wrangler pages deploy dist --project-name "$PAGES_PROJECT_NAME"
 ```
+
+`quality` 必须串行执行 typecheck、lint、可用测试、build 和带 route manifest 的静态 SEO 验证。任一步返回非零退出码，部署必须停止。
+
+使用 Cloudflare Pages Git 集成时：
+
+- Build command：`npm run quality`
+- Build output directory：`dist`
+
+不要把 Build command 只设成 `vite build`；那样只能证明资源成功编译，不能证明每个网址存在独立 HTML。Cloudflare 会根据 Build command 退出码决定构建成功或失败，因此质量闸门不得吞掉错误。
 
 项目已存在时复用，不重复创建。命令名称、参数和输出解析以当前官方文档为准。
 

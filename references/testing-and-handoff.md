@@ -4,15 +4,17 @@
 
 ## 1. 代码与构建
 
-遵循项目自己的包管理器和命令，至少运行：
+遵循项目自己的包管理器和命令，并提供单一 `quality` 入口，严格按以下顺序运行：
 
 - 类型检查，零 `as any`。
 - lint 与相关单元测试。
 - production build。
-- 静态输出验证脚本。
+- 静态输出验证脚本，且必须显式传入 route manifest。
 - 构建目录文件数、单文件大小和意外大资源检查。
 
 如果某个命令不存在，先读取项目 manifest 和规则，不凭名称安装替代工具。新增测试工具只在实现任务需要且属于用户范围时进行。
+
+任一环节失败立即终止；不得用 `|| true`、忽略 lint warning、跳过 route manifest 或先部署后补测。Cloudflare Pages 的 Build command 使用同一 `quality` 入口。
 
 ## 2. 静态 SEO
 

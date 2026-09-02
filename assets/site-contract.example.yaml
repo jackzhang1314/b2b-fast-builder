@@ -22,7 +22,10 @@ evidence:
     - "invented_capacity"
 
 architecture:
+  stack: "vite-react-typescript"
   rendering: "static-prerender"
+  generator: "react-build-time"
+  browserRuntime: "progressive-enhancement"
   contentSource: "repository"
   samplePages:
     - "/"
@@ -30,6 +33,21 @@ architecture:
     - "/products/example-product/"
   routesManifest: "./routes.json"
   outputDirectory: "./dist"
+
+designSystem:
+  styling: "tailwind-v4"
+  vitePlugin: "@tailwindcss/vite"
+  semanticTokensRequired: true
+  tokenGroups:
+    - "color"
+    - "typography"
+    - "spacing"
+    - "radius"
+    - "shadow"
+    - "container"
+  componentSource: "project-owned"
+  shadcnMode: "selective" # selective | none
+  avoidUnusedClientJavascript: true
 
 media:
   mode: "local" # local | r2
@@ -79,9 +97,13 @@ deployment:
   provider: "cloudflare-pages"
   projectName: "待确认"
   productionDomain: "待确认"
+  buildCommand: "npm run quality"
+  outputDirectory: "./dist"
+  blockOnQualityFailure: true
   authorized: false
 
 acceptance:
+  routeManifestRequired: true
   htmlContainsPrimaryContent: true
   javascriptOptionalForReading: true
   real404: true
@@ -91,3 +113,6 @@ acceptance:
   conversionOnlyAfterInquiryStored: true
   viewports: [360, 390, 768, 1440]
   pageSpeedClaimRequiresEvidence: true
+  uniqueIndexableTitles: true
+  selfCanonicalMatchesRoute: true
+  sitemapMatchesIndexableCanonicals: true

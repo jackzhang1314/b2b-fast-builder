@@ -2,7 +2,8 @@
 name: b2b-fast-builder
 description: >-
   极速规划、构建、部署或审计以 Google 自然流量和询盘为目标的静态外贸 B2B 网站。
-  使用 React 静态预生成 HTML、Cloudflare Pages、Pages Functions、D1 与 Resend，
+  默认使用 Vite、React 与 TypeScript 在构建时为每个网址预生成完整 HTML，并配合
+  Cloudflare Pages、Pages Functions、D1 与 Resend，
   支持图片随站部署或使用 R2 两种媒体模式。需要 CMS、草稿发布、前台编辑或复杂内容运营时改用 b2b-builder。
 ---
 
@@ -31,6 +32,8 @@ description: >-
 
 - 新站访谈、行业对标、关键词驱动分类、页面清单与询盘路径：读 [B2B 规划与转化](references/b2b-planning-and-conversion.md)。
 - 选择框架、静态预生成、多语言、metadata、sitemap、404 或检查构建产物：读 [静态 SEO 输出契约](references/static-seo-contract.md)。
+- 初始化 Tailwind v4、建立语义 Token、选择性使用 shadcn 或统一页面组件：读 [前端设计系统](references/frontend-design-system.md)。
+- 设置 typecheck、lint、test、build、静态 SEO 检查和部署拦截：读 [自动化质量闸门](references/automated-quality-gate.md)。
 - 使用 Cloudflare Pages、D1、Resend、Turnstile、R2、Wrangler、域名或部署：读 [Cloudflare 运行与部署](references/cloudflare-runtime-and-deployment.md)，并调用 `$cloudflare` 获取当前官方参数。
 - 首次接入 Cloudflare、迁移 DNS、注册 Resend、验证发信域名或创建 API Key：读 [账号与域名接入](references/account-and-domain-onboarding.md)。
 - 验收、PageSpeed、询盘测试、上线、回滚或交接：读 [测试与交接](references/testing-and-handoff.md)。
@@ -51,15 +54,22 @@ description: >-
 10. **创建资源不等于获准上线。** 只读规划不创建云资源；部署、域名切换、生产写入必须属于用户明确要求的范围。
 11. **客户拥有基础设施。** 域名注册商、Cloudflare、Resend 和生产仓库默认使用客户自己的账号；服务商不得把续费、DNS、发信能力或源代码锁在自己的账号里。
 12. **把技术复杂度留给 Agent。** 面向非技术用户只询问域名、购买平台、收件邮箱等业务信息；能读取或自动配置的内容不让用户手抄。登录用浏览器授权，Secret 用加密输入框，不让用户在聊天中粘贴密码、Token 或 API Key。
+13. **质量闸门失败不得部署。** 路由清单必须传给静态验证器；任一类型、lint、测试、构建、路由 HTML、title、canonical 或 sitemap 检查失败，必须返回非零退出码并停止 Cloudflare 部署。
+14. **视觉值必须来自语义 Token。** 品牌色、文字色、背景、边框、圆角、阴影、间距和内容宽度使用统一设计变量；页面组件不得各自散落任意颜色和尺寸。
 
 ## 技术选择原则
 
-- React 是组件层要求；框架名称不是验收标准。新项目选择当前稳定、能为全部已知路由预生成 HTML、能在 Cloudflare Pages 部署的最小方案。
+- **新建极速站默认技术栈固定为 Vite + React + TypeScript。** React 负责可复用页面组件，Vite 负责编译样式、脚本和静态资源，构建期生成器使用 React 服务端渲染能力遍历 route manifest，并把每条已知路由写成独立完整 HTML。
+- **样式层默认使用 Tailwind CSS v4 与 `@tailwindcss/vite`，并强制使用语义 Token。** `bg-primary`、`text-muted-foreground` 等语义类表达用途，不在业务组件里散落 `bg-blue-500`、十六进制品牌色或任意阴影。
+- **shadcn 选择性使用，不默认全量安装。** 表单、按钮、弹层、折叠和无障碍交互优先复用所需组件；营销区块、产品卡和页面模板按项目视觉方向组合。只添加实际使用的源码组件，避免给纯静态页面带来无用客户端 JavaScript。
+- **默认不安装 Next.js。** 本方案不需要 Next.js 服务端、App Router、Server Actions、ISR 或图片服务。只有现有项目已经使用 Next.js 且静态导出合格，或用户明确要求 Next.js 时才保留；不得为了框架名重写项目。
+- 构建产物默认写入 `dist/`。`/products/example/` 应对应 `dist/products/example/index.html`；不得只输出一个 `index.html` 再用 SPA fallback 承接所有网址。
+- 默认把 React 当作构建期组件系统，不把整套 React 运行时无条件发送到浏览器。导航、折叠和询盘表单优先使用原生 HTML、CSS 与少量渐进增强脚本；确实需要状态交互时才对局部组件 hydration。
 - 现有项目先读取 `package.json`、lockfile、构建配置和输出目录，不为换技术栈而重写可用项目。
 - 可以使用 hydration 保留菜单、筛选和表单交互，但核心内容必须已存在于初始 HTML。
 - Pages Function 默认只匹配 `/api/*`；静态页面和静态资源不应无故调用 Function。
 - 多语言优先根据国家/语言策略选择独立域名、子域名或子目录；每种语言生成独立 HTML、canonical 与正确的 hreflang。
-- 涉及 React 性能与组件实现时调用 `$vercel-react-best-practices`；存在 shadcn 时调用官方 `$shadcn`；视觉方向阶段调用 `$frontend-design`。不要只因 Skill 已安装就同时加载。
+- 涉及 React 性能与组件实现时调用 `$vercel-react-best-practices`；初始化或修改 shadcn 时调用 `$shadcn`，Tailwind v4 与 shadcn 联用时调用 `$tailwind-v4-shadcn`；视觉方向阶段调用 `$frontend-design`。不要只因 Skill 已安装就同时加载。
 
 ## 标准工作流
 
@@ -90,7 +100,7 @@ description: >-
 
 ### 4. 静态生成全部页面
 
-从 route manifest 和内容数据生成每条路由。不得手写大量内容重复的 JSX 页面；列表、详情、语言变体和 metadata 必须来自同一真源。生成后检查每个 route 对应独立 HTML 文件。
+从 route manifest 和内容数据生成每条路由。Vite 编译共享资源，构建期 React 生成器将完整文档写入对应的 `dist/<route>/index.html`；列表、详情、语言变体和 metadata 必须来自同一真源。不得手写大量内容重复的 JSX 页面，也不得把主要正文留给浏览器端 React 渲染。生成后检查每个 route 对应独立 HTML 文件。
 
 ### 5. 建立询盘闭环
 
@@ -105,7 +115,7 @@ description: >-
 
 ### 7. 验证和部署
 
-首次上线先按 [账号与域名接入](references/account-and-domain-onboarding.md) 完成 Cloudflare 与 Resend onboarding。再运行项目规定的 typecheck、lint、测试和 build，并用 [静态输出验证脚本](scripts/validate-static-output.mjs) 检查 HTML。浏览器验证桌面、手机、导航、404、询盘成功/失败和真实内容；部署后再从匿名网络完成一次端到端 smoke。
+首次上线先按 [账号与域名接入](references/account-and-domain-onboarding.md) 完成 Cloudflare 与 Resend onboarding。再按 [自动化质量闸门](references/automated-quality-gate.md) 将 typecheck、lint、test、build 和必须传入 route manifest 的静态验证串成一个命令。Cloudflare Pages 的 Build command 和人工部署命令都必须先运行该闸门；不允许绕过。浏览器验证桌面、手机、导航、404、询盘成功/失败和真实内容；部署后再从匿名网络完成一次端到端 smoke。
 
 只有实际跑过测试才能写“通过”。PageSpeed 四项 100 只能在保留页面、设备、时间和正式测试结果时宣称。
 
@@ -155,5 +165,7 @@ description: >-
 - 询盘在邮件调用前写入 D1，失败可见、可重试。
 - 只有询盘成功入库才进入独立 `/thank-you/`；页面 `noindex`、不进 sitemap，转化事件使用唯一询盘编号去重且不传 PII。
 - 类型、lint、测试、build、静态 HTML、桌面/移动视觉和生产 smoke 已验证，或明确列出未运行原因。
+- 项目提供单一质量闸门命令，强制执行 `typecheck → lint → test → build → validate:static`；部署只能在该命令成功后继续。
+- 静态验证必须传入 route manifest，并证明路由、HTML、唯一 title、自引用 canonical 与 sitemap 一致。
 - Secret 不在 Git、日志、客户端 bundle 或交接文档中。
 - 交付内容真源、更新方法、部署方法、询盘查看方法、测试证据、已知风险与回滚路径。

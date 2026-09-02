@@ -1,6 +1,6 @@
 # 静态 SEO 输出契约
 
-用于选择 React 静态方案、设计内容真源、生成路由、实现多语言 SEO 和检查构建产物。框架与搜索引擎规则会变化；实施前核对项目安装版本、包内类型和当前官方文档。
+用于落实默认的 Vite + React + TypeScript 静态方案、设计内容真源、生成路由、实现多语言 SEO 和检查构建产物。依赖版本与搜索引擎规则会变化；实施前核对项目安装版本、包内类型和当前官方文档。
 
 ## 1. 合格输出
 
@@ -33,20 +33,23 @@ dist/
 
 如果正文只在 JavaScript 执行后出现，即使部署在 Pages，也只是静态托管的客户端 SPA，不是本 Skill 定义的 SEO 静态页面。
 
-## 2. 框架选择
+## 2. 默认实现
 
 先检查现有项目能否预生成全部已知路由。满足输出契约就保留，不为追求某个名称重写。
 
-新项目选择时比较：
+新建极速站默认采用：
 
-- 能否从 route manifest 和本地内容数据批量预生成 HTML。
-- React 组件、局部 hydration 与 TypeScript 支持。
-- 动态参数路由能否在 build 时列举。
-- metadata、canonical、hreflang、sitemap 与 404 是否可确定生成。
-- Cloudflare Pages 的当前官方部署支持。
-- 构建速度、bundle 大小、维护复杂度和锁定风险。
+- Vite：编译 TypeScript、CSS、浏览器端渐进增强脚本和静态资源。
+- React：只作为类型安全、可复用的构建期页面组件层。
+- React 服务端渲染能力：由构建脚本遍历 route manifest，将页面和完整文档模板渲染为 HTML 字符串。
+- 文件生成器：把 `/a/b/` 写到 `dist/a/b/index.html`，同时确定性生成 metadata、canonical、hreflang、sitemap、robots 与 404。
+- Cloudflare Pages：直接托管 `dist/`；Pages Functions 仅处理 `/api/*`。
 
-可以考虑静态导出型 React 框架、支持 React islands 的静态生成器或经过验证的 React 预渲染方案。不要默认安装一个陈旧的“React Static”包；先核对维护状态和当前官方类型。
+默认不引入 Next.js、SSR 服务器或全站客户端路由。不能因为项目使用 React，就退化成只有一个空壳 `index.html` 的 Vite SPA。
+
+交互默认渐进增强：导航和折叠优先使用原生 HTML/CSS，询盘表单用少量浏览器脚本调用 `/api/inquiry`。只有确实需要 React 状态的局部区域才 hydration；关闭 JavaScript 后，页面主要信息、链接和表单说明仍应可理解。
+
+例外：现有项目已经使用其他静态生成方案且满足本契约时继续使用；用户明确要求 Next.js 时可以使用静态导出，但仍须逐路由检查最终 HTML。
 
 ## 3. 内容真源
 
@@ -124,6 +127,17 @@ node /path/to/b2b-fast-builder/scripts/validate-static-output.mjs \
   dist \
   routes.json
 ```
+
+`routes.json` 不是可选参数。验证器必须核对：
+
+- route manifest 中每条路由都有独立 HTML。
+- 除专用 404 外，不存在 route manifest 未声明的孤立 HTML。
+- 每个可索引页的 title 和 canonical 唯一。
+- canonical 是绝对 URL、不带 query/hash，路径与当前 route 对应，且全站使用同一个正式 origin。
+- sitemap 使用绝对 URL，只包含可索引页的 canonical。
+- `noindex` 页不进 sitemap，sitemap 也不得引用没有静态 HTML 的网址。
+
+验证脚本必须成为项目 `quality` 命令和 Cloudflare Pages Build command 的一部分，不能只在交接时手动运行。详见 [自动化质量闸门](automated-quality-gate.md)。
 
 然后抽查源响应：
 
