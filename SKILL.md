@@ -50,6 +50,7 @@ description: >-
 9. **Secret 不进入前端和仓库。** Resend、Turnstile、Cloudflare Token 只进入安全环境或 Pages Secret。
 10. **创建资源不等于获准上线。** 只读规划不创建云资源；部署、域名切换、生产写入必须属于用户明确要求的范围。
 11. **客户拥有基础设施。** 域名注册商、Cloudflare、Resend 和生产仓库默认使用客户自己的账号；服务商不得把续费、DNS、发信能力或源代码锁在自己的账号里。
+12. **把技术复杂度留给 Agent。** 面向非技术用户只询问域名、购买平台、收件邮箱等业务信息；能读取或自动配置的内容不让用户手抄。登录用浏览器授权，Secret 用加密输入框，不让用户在聊天中粘贴密码、Token 或 API Key。
 
 ## 技术选择原则
 
@@ -70,7 +71,7 @@ description: >-
 
 ### 2. 输出可确认的建站契约
 
-使用 [项目契约模板](assets/site-contract.example.yaml) 形成：
+使用 [项目契约模板](assets/site-contract.example.yaml) 形成；客户不懂技术时按 [客户接入表单模板](assets/onboarding-intake.example.yaml) 分步收集：
 
 - 业务与目标买家。
 - 精准搜索意图和页面分类依据。

@@ -1,0 +1,81 @@
+schemaVersion: 1
+
+experience:
+  audience: "non-technical"
+  language: "plain"
+  technicalDetailsHiddenByDefault: true
+  statusLabels:
+    working: "正在帮你配置"
+    done: "已经完成"
+    userAction: "现在需要你操作一下"
+
+steps:
+  - id: "basic-information"
+    title: "先告诉我三件事"
+    fields:
+      - id: "domain"
+        label: "你的网站域名是什么？"
+        type: "text"
+        secret: false
+      - id: "registrar"
+        label: "这个域名是在哪里买的？"
+        type: "text-or-select"
+        secret: false
+      - id: "inquiryRecipient"
+        label: "客户提交询盘后，邮件发到哪个邮箱？"
+        type: "email"
+        secret: false
+
+  - id: "existing-services"
+    title: "这个域名现在还在使用什么？"
+    fields:
+      - id: "businessEmailInUse"
+        label: "这个域名现在是否正在使用企业邮箱？"
+        type: "yes-no-unknown"
+        secret: false
+      - id: "dnsEvidence"
+        label: "如果方便，请上传原域名解析页面截图或导出文件"
+        type: "file-or-image"
+        required: false
+        secret: false
+
+  - id: "cloudflare-authorization"
+    title: "连接 Cloudflare"
+    action:
+      label: "打开 Cloudflare 并授权"
+      type: "browser-oauth"
+      allowCredentialPaste: false
+
+  - id: "nameserver-update"
+    title: "让域名指向新网站"
+    action:
+      label: "打开域名购买平台的设置页面"
+      type: "guided-user-action"
+      showOnlyAssignedNameservers: true
+      requireExplicitConfirmation: true
+
+  - id: "resend-connection"
+    title: "连接询盘邮件"
+    actions:
+      - label: "打开 Resend 注册或登录"
+        type: "browser-open"
+      - label: "粘贴邮件发送密钥"
+        type: "secure-secret-input"
+        destination: "cloudflare-pages-secret:RESEND_API_KEY"
+        masked: true
+        visibleToConversation: false
+        persistInLogs: false
+
+automation:
+  inferBeforeAsking: true
+  maxQuestionsPerRound: 3
+  previewDnsChangesBeforeWrite: true
+  verifyExistingEmailAfterNameserverChange: true
+  verifyInquiryEndToEnd: true
+
+forbiddenInputs:
+  - "account_password"
+  - "sms_code"
+  - "two_factor_code"
+  - "recovery_code"
+  - "browser_cookie"
