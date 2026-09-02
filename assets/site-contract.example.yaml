@@ -41,11 +41,18 @@ media:
 
 inquiries:
   endpoint: "/api/inquiry"
+  successRedirect: "/thank-you/"
   database: "d1"
   notification: "resend"
   turnstile: true
   saveBeforeNotify: true
+  redirectOnlyAfterStore: true
   recipient: "待确认"
+  conversion:
+    event: "inquiry_submit_success"
+    idSource: "inquiry_id"
+    preventDuplicate: true
+    allowPii: false
 
 deployment:
   provider: "cloudflare-pages"
@@ -58,5 +65,8 @@ acceptance:
   javascriptOptionalForReading: true
   real404: true
   inquiryStoredOnEmailFailure: true
+  thankYouNoindex: true
+  thankYouExcludedFromSitemap: true
+  conversionOnlyAfterInquiryStored: true
   viewports: [360, 390, 768, 1440]
   pageSpeedClaimRequiresEvidence: true

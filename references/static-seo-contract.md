@@ -14,6 +14,7 @@ dist/
 ├── 2-ton-mini-excavator/index.html
 ├── applications/construction/index.html
 ├── contact/index.html
+├── thank-you/index.html
 ├── 404.html
 ├── robots.txt
 └── sitemap.xml
@@ -88,6 +89,7 @@ content/
 - 相同内容不能只替换国家词、产品词或语言标签就生成大量页面。
 - 列表筛选参数默认不创建无限可索引组合；只有独立需求和内容价值时生成静态落地页。
 - 草稿、占位、测试和预览路由保持 noindex，且不进入 sitemap。
+- 询盘感谢页 `/thank-you/` 保持 `noindex, follow`，不进入 sitemap 或主导航；它是转化确认页，不是 SEO 落地页。
 
 ## 6. 多语言
 

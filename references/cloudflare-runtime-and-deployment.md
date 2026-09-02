@@ -20,6 +20,10 @@ D1 先保存询盘
 Resend 发送通知
         ↓
 D1 更新邮件状态
+        ↓
+前端跳转 /thank-you/
+        ↓
+触发一次广告转化事件
 ```
 
 媒体是独立策略：
@@ -142,7 +146,8 @@ ON inquiries(email_status, retry_count);
 4. 生成询盘 ID，先插入 D1，`email_status=pending`。
 5. 调用 Resend，使用询盘 ID 派生稳定 Idempotency-Key。
 6. 成功记录 `sent` 与 Resend ID；失败记录 `failed`、错误和次数。
-7. 只要 D1 已保存，可向用户说明“需求已收到”；邮件失败进入补发，不把记录删除。
+7. 只要 D1 已保存，API 返回成功状态、非 PII 的询盘 ID 和 `redirectTo=/thank-you/`；邮件失败进入补发，不把记录删除。
+8. 使用 `fetch` 的表单收到成功响应后再执行浏览器跳转；原生表单 POST 可在服务端返回 `303`。校验或 D1 写入失败时不得跳转。
 
 生产项目提供：
 
@@ -151,7 +156,19 @@ ON inquiries(email_status, retry_count);
 - 有上限的补发命令或定时 Worker。
 - 每日 D1 与邮件发送状态对账。
 
-## 7. Pages 部署
+## 7. 感谢页与广告转化
+
+`/thank-you/` 是独立静态页面，也是询盘转化的确认页：
+
+- 只在 D1 已成功保存询盘后进入；不要在点击提交按钮时提前跳转。
+- 页面明确告知“需求已收到”、预计响应方式与下一步，并提供返回产品或首页的入口。
+- 设置 `noindex, follow`，不进入 sitemap、主导航或站内搜索结果。
+- 表单成功后把唯一询盘 ID 暂存到同源 `sessionStorage`，感谢页读取后向 GTM、Google Ads 或分析工具发送一次事件，再清除已消费标记。
+- 使用唯一询盘 ID 作为 `transaction_id` 或等价去重字段；不得把姓名、邮箱、电话、留言等 PII 放进 URL、dataLayer 或广告事件。
+- 直接打开感谢页、刷新、后退再前进或重复回放同一询盘，不应再次计为新转化。
+- 如果客户只配置“访问该 URL 即转化”的基础规则，也要说明它无法可靠排除手动访问和刷新；生产方案优先使用成功标记与唯一 ID 去重。
+
+## 8. Pages 部署
 
 代表性流程：
 
@@ -171,7 +188,7 @@ npx wrangler pages deploy dist --project-name "$PAGES_PROJECT_NAME"
 
 Resend Key、Turnstile Secret 通过 Pages Secret 写入；普通收件地址和已确认的非敏感设置可放 Wrangler 配置。部署前检查 preview 与 production 使用的 Binding 和 Secret 是否一致但彼此隔离。
 
-## 8. Agent 自动化边界
+## 9. Agent 自动化边界
 
 取得授权后，Agent 可以自动：
 
