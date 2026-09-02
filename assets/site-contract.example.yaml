@@ -39,6 +39,16 @@ media:
     publicDomain: null
     customerOwned: true
 
+domain:
+  registrar: "待确认"
+  registrantControlledByCustomer: true
+  authoritativeDns: "cloudflare" # cloudflare | external
+  cloudflareAccountOwnedByCustomer: true
+  existingDnsExported: false
+  existingMailRecordsVerified: false
+  nameserversDelegated: false
+  dnssecReenabled: false
+
 inquiries:
   endpoint: "/api/inquiry"
   successRedirect: "/thank-you/"
@@ -53,6 +63,17 @@ inquiries:
     idSource: "inquiry_id"
     preventDuplicate: true
     allowPii: false
+
+emailDelivery:
+  provider: "resend"
+  accountOwnedByCustomer: true
+  sendingDomain: "待确认" # e.g. notify.example.com
+  domainVerified: false
+  apiKeyPermission: "sending_access"
+  apiKeyRestrictedToDomain: true
+  secretName: "RESEND_API_KEY"
+  fromAddress: "待确认"
+  replyToUsesValidatedVisitorEmail: true
 
 deployment:
   provider: "cloudflare-pages"

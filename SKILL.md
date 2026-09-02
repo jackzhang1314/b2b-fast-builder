@@ -32,6 +32,7 @@ description: >-
 - 新站访谈、行业对标、关键词驱动分类、页面清单与询盘路径：读 [B2B 规划与转化](references/b2b-planning-and-conversion.md)。
 - 选择框架、静态预生成、多语言、metadata、sitemap、404 或检查构建产物：读 [静态 SEO 输出契约](references/static-seo-contract.md)。
 - 使用 Cloudflare Pages、D1、Resend、Turnstile、R2、Wrangler、域名或部署：读 [Cloudflare 运行与部署](references/cloudflare-runtime-and-deployment.md)，并调用 `$cloudflare` 获取当前官方参数。
+- 首次接入 Cloudflare、迁移 DNS、注册 Resend、验证发信域名或创建 API Key：读 [账号与域名接入](references/account-and-domain-onboarding.md)。
 - 验收、PageSpeed、询盘测试、上线、回滚或交接：读 [测试与交接](references/testing-and-handoff.md)。
 
 只读取当前阶段需要的参考；跨阶段实施时再组合读取。
@@ -48,6 +49,7 @@ description: >-
 8. **参考获客逻辑，不复制品牌表达。** 对标网站用于研究信息顺序、关键词覆盖、页面结构和转化路径，不逐像素复制 Logo、文案、摄影或专有设计。
 9. **Secret 不进入前端和仓库。** Resend、Turnstile、Cloudflare Token 只进入安全环境或 Pages Secret。
 10. **创建资源不等于获准上线。** 只读规划不创建云资源；部署、域名切换、生产写入必须属于用户明确要求的范围。
+11. **客户拥有基础设施。** 域名注册商、Cloudflare、Resend 和生产仓库默认使用客户自己的账号；服务商不得把续费、DNS、发信能力或源代码锁在自己的账号里。
 
 ## 技术选择原则
 
@@ -75,6 +77,7 @@ description: >-
 - route matrix、页面模板和主 CTA。
 - 内容真源、语言策略和 SEO 字段来源。
 - 询盘字段、收件人、反垃圾策略、感谢页路由和转化事件。
+- 域名注册商、Cloudflare DNS 接管状态、Resend 发信子域与账号归属。
 - `local` 或 `r2` 媒体模式。
 - 部署范围、授权状态和验收标准。
 
@@ -101,7 +104,7 @@ description: >-
 
 ### 7. 验证和部署
 
-运行项目规定的 typecheck、lint、测试和 build，再用 [静态输出验证脚本](scripts/validate-static-output.mjs) 检查 HTML。浏览器验证桌面、手机、导航、404、询盘成功/失败和真实内容；部署后再从匿名网络完成一次端到端 smoke。
+首次上线先按 [账号与域名接入](references/account-and-domain-onboarding.md) 完成 Cloudflare 与 Resend onboarding。再运行项目规定的 typecheck、lint、测试和 build，并用 [静态输出验证脚本](scripts/validate-static-output.mjs) 检查 HTML。浏览器验证桌面、手机、导航、404、询盘成功/失败和真实内容；部署后再从匿名网络完成一次端到端 smoke。
 
 只有实际跑过测试才能写“通过”。PageSpeed 四项 100 只能在保留页面、设备、时间和正式测试结果时宣称。
 

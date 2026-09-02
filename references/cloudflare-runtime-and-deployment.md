@@ -2,6 +2,8 @@
 
 用于 Cloudflare Pages、Pages Functions、D1、Resend、Turnstile、R2、Wrangler、域名和自动部署。Cloudflare 与 Resend 的命令、限制、权限和计费会变化；执行前调用 `$cloudflare` 并检索当前官方文档，不凭本文猜最新参数。
 
+第一次配置客户账号、迁移 Nameserver、验证 Resend 发信域名或创建 API Key 时，先读 [账号与域名接入](account-and-domain-onboarding.md)。
+
 ## 1. 固定架构
 
 ```text
@@ -43,6 +45,8 @@ npx wrangler whoami
 ```
 
 用户只负责浏览器登录和授权；Agent 不要求用户把 OAuth Token 粘贴进聊天。
+
+极速建站默认让客户把权威 DNS 交给自己的 Cloudflare 账号统一管理，但域名仍在原注册商持有和续费。切换前必须核对并迁移现有 DNS 记录；Wrangler 不作为通用 DNS 管理工具，DNS 自动化使用 Cloudflare API 或受控 IaC。
 
 无浏览器的 CI/云端环境使用最小权限的 `CLOUDFLARE_API_TOKEN` 与 `CLOUDFLARE_ACCOUNT_ID`。Token 只进入 CI Secret 或安全环境，不写入提交的环境文件、Skill、日志或前端。
 
