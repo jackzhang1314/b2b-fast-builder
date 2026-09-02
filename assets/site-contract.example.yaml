@@ -1,0 +1,62 @@
+schemaVersion: 1
+
+business:
+  company: "待确认"
+  offer: "待确认"
+  buyers: []
+  markets: []
+  languages: ["en"]
+  primaryConversion: "request_quote"
+  qualifiedInquiryFields:
+    - "product"
+    - "quantity"
+    - "country"
+    - "requirements"
+
+evidence:
+  verified: []
+  pending: []
+  forbiddenPlaceholders:
+    - "fake_customer_logo"
+    - "unverified_certificate"
+    - "invented_capacity"
+
+architecture:
+  rendering: "static-prerender"
+  contentSource: "repository"
+  samplePages:
+    - "/"
+    - "/products/example-category/"
+    - "/products/example-product/"
+  routesManifest: "./routes.json"
+  outputDirectory: "./dist"
+
+media:
+  mode: "local" # local | r2
+  localDirectory: "./public/assets"
+  r2:
+    bucket: null
+    publicDomain: null
+    customerOwned: true
+
+inquiries:
+  endpoint: "/api/inquiry"
+  database: "d1"
+  notification: "resend"
+  turnstile: true
+  saveBeforeNotify: true
+  recipient: "待确认"
+
+deployment:
+  provider: "cloudflare-pages"
+  projectName: "待确认"
+  productionDomain: "待确认"
+  authorized: false
+
+acceptance:
+  htmlContainsPrimaryContent: true
+  javascriptOptionalForReading: true
+  real404: true
+  inquiryStoredOnEmailFailure: true
+  viewports: [360, 390, 768, 1440]
+  pageSpeedClaimRequiresEvidence: true

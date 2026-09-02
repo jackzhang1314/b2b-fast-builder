@@ -1,0 +1,4 @@
+interface:
+  display_name: "B2B Fast Builder"
+  short_description: "极速构建可收录、可获客、可自动部署的静态外贸 B2B 网站"
+  default_prompt: "使用 $b2b-fast-builder 构建一个静态预生成、可被搜索引擎直接读取并能可靠接收询盘的外贸 B2B 网站。"
