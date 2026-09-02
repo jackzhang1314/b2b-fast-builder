@@ -82,6 +82,22 @@ inquiries:
     preventDuplicate: true
     allowPii: false
 
+liveChat:
+  provider: "none" # none | tidio
+  enabled: false
+  configFile: "./tidio.json"
+  accountOwnedByCustomer: true
+  publicKey: null # public identifier, never use a sample project's key
+  installScope: "all-public-pages" # all-public-pages | selected-routes
+  includeRoutes: []
+  excludeRoutes:
+    - "/thank-you/"
+  privacyMode: "待确认" # immediate | consent-gated | disabled
+  productionOnly: true
+  validatedInBuiltHtml: false
+  testMessageConfirmedInCustomerInbox: false
+  performanceRetestedAfterEnable: false
+
 emailDelivery:
   provider: "resend"
   accountOwnedByCustomer: true

@@ -36,6 +36,7 @@ description: >-
 - 设置 typecheck、lint、test、build、静态 SEO 检查和部署拦截：读 [自动化质量闸门](references/automated-quality-gate.md)。
 - 使用 Cloudflare Pages、D1、Resend、Turnstile、R2、Wrangler、域名或部署：读 [Cloudflare 运行与部署](references/cloudflare-runtime-and-deployment.md)，并调用 `$cloudflare` 获取当前官方参数。
 - 首次接入 Cloudflare、迁移 DNS、注册 Resend、验证发信域名或创建 API Key：读 [账号与域名接入](references/account-and-domain-onboarding.md)。
+- 用户需要即时聊天、Tidio 注册引导、安装脚本、隐私配置或聊天验收：读 [Tidio 即时聊天接入](references/tidio-live-chat.md)。
 - 验收、PageSpeed、询盘测试、上线、回滚或交接：读 [测试与交接](references/testing-and-handoff.md)。
 
 只读取当前阶段需要的参考；跨阶段实施时再组合读取。
@@ -56,6 +57,7 @@ description: >-
 12. **把技术复杂度留给 Agent。** 面向非技术用户只询问域名、购买平台、收件邮箱等业务信息；能读取或自动配置的内容不让用户手抄。登录用浏览器授权，Secret 用加密输入框，不让用户在聊天中粘贴密码、Token 或 API Key。
 13. **质量闸门失败不得部署。** 路由清单必须传给静态验证器；任一类型、lint、测试、构建、路由 HTML、title、canonical 或 sitemap 检查失败，必须返回非零退出码并停止 Cloudflare 部署。
 14. **视觉值必须来自语义 Token。** 品牌色、文字色、背景、边框、圆角、阴影、间距和内容宽度使用统一设计变量；页面组件不得各自散落任意颜色和尺寸。
+15. **即时聊天不能替代可靠询盘。** Tidio 是用户明确选择后启用的第三方增强项；站内表单仍执行 D1 先入库、Resend 后通知。不得声称 Tidio 对话自动进入 D1，也不得因用户暂未提供 Tidio Public Key 阻塞建站。
 
 ## 技术选择原则
 
@@ -88,6 +90,7 @@ description: >-
 - route matrix、页面模板和主 CTA。
 - 内容真源、语言策略和 SEO 字段来源。
 - 询盘字段、收件人、反垃圾策略、感谢页路由和转化事件。
+- 是否启用 Tidio、客户 Project 的 Public Key、显示范围、隐私策略和性能验收口径。
 - 域名注册商、Cloudflare DNS 接管状态、Resend 发信子域与账号归属。
 - `local` 或 `r2` 媒体模式。
 - 部署范围、授权状态和验收标准。
@@ -102,9 +105,13 @@ description: >-
 
 从 route manifest 和内容数据生成每条路由。Vite 编译共享资源，构建期 React 生成器将完整文档写入对应的 `dist/<route>/index.html`；列表、详情、语言变体和 metadata 必须来自同一真源。不得手写大量内容重复的 JSX 页面，也不得把主要正文留给浏览器端 React 渲染。生成后检查每个 route 对应独立 HTML 文件。
 
+若用户确认 Tidio，由同一个完整文档生成器把经过校验的官方 loader 写在选定公开页面的 `</body>` 前。极速版是多页静态输出，不能只改根 `index.html` 后假设其他 HTML 自动继承。
+
 ### 5. 建立询盘闭环
 
 实现 `/api/inquiry`：校验字段和 Turnstile、去重、先写 D1，再调用 Resend，最后记录邮件状态。D1 保存成功后，前端携带非个人身份的询盘编号跳转到独立 `/thank-you/`；感谢页说明下一步并触发一次转化事件。Resend 失败但询盘已保存时仍可进入感谢页；数据库写入失败则不得跳转。
+
+Tidio 的聊天记录留在客户自己的 Tidio Inbox。除非用户另行要求并授权 API/webhook 集成，不把聊天同步到 D1 写成已有能力；Tidio 不可用时，站内 RFQ 仍必须独立工作。
 
 ### 6. 执行媒体模式
 
@@ -116,6 +123,8 @@ description: >-
 ### 7. 验证和部署
 
 首次上线先按 [账号与域名接入](references/account-and-domain-onboarding.md) 完成 Cloudflare 与 Resend onboarding。再按 [自动化质量闸门](references/automated-quality-gate.md) 将 typecheck、lint、test、build 和必须传入 route manifest 的静态验证串成一个命令。Cloudflare Pages 的 Build command 和人工部署命令都必须先运行该闸门；不允许绕过。浏览器验证桌面、手机、导航、404、询盘成功/失败和真实内容；部署后再从匿名网络完成一次端到端 smoke。
+
+启用 Tidio 时，质量闸门还必须验证目标 HTML 都且只包含一个客户 Public Key loader；生产 smoke 发送唯一前缀测试消息并由客户在 Tidio Inbox 回读，同时重测启用后的 PageSpeed。
 
 只有实际跑过测试才能写“通过”。PageSpeed 四项 100 只能在保留页面、设备、时间和正式测试结果时宣称。
 
@@ -167,5 +176,6 @@ description: >-
 - 类型、lint、测试、build、静态 HTML、桌面/移动视觉和生产 smoke 已验证，或明确列出未运行原因。
 - 项目提供单一质量闸门命令，强制执行 `typecheck → lint → test → build → validate:static`；部署只能在该命令成功后继续。
 - 静态验证必须传入 route manifest，并证明路由、HTML、唯一 title、自引用 canonical 与 sitemap 一致。
+- 若启用 Tidio，安装范围、Public Key 来源、隐私处理、逐页 loader 检查、真实消息验收和启用后的性能证据均已记录；若未启用，不把它写成已完成。
 - Secret 不在 Git、日志、客户端 bundle 或交接文档中。
 - 交付内容真源、更新方法、部署方法、询盘查看方法、测试证据、已知风险与回滚路径。

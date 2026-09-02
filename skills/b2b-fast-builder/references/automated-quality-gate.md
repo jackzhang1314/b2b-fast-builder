@@ -12,6 +12,7 @@ typecheck
 → test（项目有测试时）
 → build assets + 逐路由生成 HTML
 → validate:static dist routes.json
+→ validate:integrations（启用了 Tidio 等第三方能力时）
 → 成功后才允许 deploy
 ```
 
@@ -30,16 +31,19 @@ typecheck
     "build:pages": "tsx scripts/generate-static.tsx",
     "build": "npm run build:assets && npm run build:pages",
     "validate:static": "node scripts/validate-static-output.mjs dist routes.json",
-    "quality": "npm run typecheck && npm run lint && npm run test --if-present && npm run build && npm run validate:static",
+    "validate:integrations": "node scripts/validate-tidio-output.mjs dist routes.json tidio.json",
+    "quality": "npm run typecheck && npm run lint && npm run test --if-present && npm run build && npm run validate:static && npm run validate:integrations",
     "deploy": "npm run quality && wrangler pages deploy dist"
   }
 }
 ```
 
 - 将本 Skill 的 `scripts/validate-static-output.mjs` 复制到项目 `scripts/`，使 CI 和客户不依赖 Agent 本机的绝对路径。
+- 将本 Skill 的 `scripts/validate-tidio-output.mjs` 和 [Tidio 配置示例](../assets/tidio-config.example.json) 一并复制到项目；即使未启用 Tidio，也检查构建产物没有误装示例或其他客户的 loader。
 - `build` 必须清理并重建 `dist`，防止已删除路由的旧 HTML 残留。
 - `routes.json`、sitemap 和导航 URL 必须来自同一 route resolver，不维护三份独立清单。
 - 项目没有测试脚本时可由 `--if-present` 跳过；typecheck、lint、build 和 validate:static 不得跳过。
+- 项目启用 Tidio 时，测试必须读取同一 route manifest 和 live-chat 配置，验证目标 HTML 中客户 loader 恰好出现一次；不得只检查 `dist/index.html`。
 
 ## 3. 静态验证的强制条件
 

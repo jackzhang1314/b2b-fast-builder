@@ -66,6 +66,25 @@ steps:
         visibleToConversation: false
         persistInLogs: false
 
+  - id: "live-chat"
+    title: "要不要增加网站在线聊天？"
+    fields:
+      - id: "liveChatProvider"
+        label: "是否接入 Tidio 在线聊天？以后也可以补装"
+        type: "select"
+        options: ["暂不接入", "接入 Tidio"]
+        secret: false
+    conditionalActions:
+      when: "liveChatProvider == 接入 Tidio"
+      actions:
+        - label: "打开 Tidio 注册或登录"
+          type: "browser-open"
+          url: "https://www.tidio.com/"
+        - label: "粘贴官方安装代码或 Public Key"
+          type: "public-text-input"
+          allowCredentialPaste: false
+          rejectPrivateApiKey: true
+
 automation:
   inferBeforeAsking: true
   maxQuestionsPerRound: 3

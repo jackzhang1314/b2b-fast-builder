@@ -1,0 +1,6 @@
+{
+  "enabled": false,
+  "publicKey": null,
+  "includeRoutes": [],
+  "excludeRoutes": ["/thank-you/"]
+}
