@@ -1,4 +1,4 @@
 interface:
   display_name: "B2B Fast Builder"
   short_description: "极速构建可收录、可获客、可自动部署的静态外贸 B2B 网站"
-  default_prompt: "使用 $b2b-fast-builder 构建一个静态预生成、可被搜索引擎直接读取并能可靠接收询盘的外贸 B2B 网站。"
+  default_prompt: "使用 $b2b-fast-builder 构建专业、有质感的静态外贸 B2B 网站：先做样板，确认样式后主动收集并替换客户真实资料，到实际需要时才引导注册和配置服务，最后验证静态 HTML 与可靠询盘闭环。"

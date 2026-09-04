@@ -1,5 +1,5 @@
 # 声明式进度模板，不是可执行工作流或凭据存储。生成到客户项目本地，默认不提交公开仓库。
-schemaVersion: 1
+schemaVersion: 2
 updatedAt: null
 contractFile: "./site-contract.yaml" # 复用项目实际契约，不重复维护域名/收件人
 allowedStatuses: [not_started, working, waiting_user, waiting_external, verified, skipped]
@@ -7,6 +7,12 @@ scope:
   deploymentAuthorized: false
   dnsChangeApproved: false
   liveChatDecision: "undecided" # undecided | tidio | skip
+readiness:
+  designApprovalRef: null # 复用 DESIGN.md 的确认，不以样式批准代替内容批准
+  contentApprovalRef: null
+  pendingMaterialsRef: null
+  currentServiceNeed: null # 只有当前确实需部署/发信/上传 R2/装聊天才填
+  previewOnly: true
 environment:
   shellAvailable: null
   browserAvailable: null
@@ -43,7 +49,7 @@ steps:
 nextAction:
   owner: "agent" # agent | user | provider
   step: "prerequisites"
-  instruction: "检查已有配置、工具与授权，缺少必要工具时从官方来源安装。"
+  instruction: "先确认当前需要接通哪个服务；尚在设计阶段则继续建站，不引导注册。样式已确认时先主动收客户资料；实际接入时只检查该步骤需要的工具与授权。"
   resumeCondition: null
 privacy:
   storeSecretValues: false

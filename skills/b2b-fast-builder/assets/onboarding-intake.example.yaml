@@ -1,8 +1,11 @@
 # 声明式交互模板，不会凭空创建安全输入 UI。按宿主实际能力选择动作。
-schemaVersion: 2
+schemaVersion: 3
 
 trigger:
-  event: "pages-ready-for-authorized-launch"
+  event: "current-step-needs-service-integration"
+  doNotTriggerAtDesignStart: true
+  requestOnlyCurrentlyNeededService: true
+  # 样式确认先走 content-and-asset-handoff.md；本模板不是建站开场问卷。
   proactive: true
   waitForUserToAskForIntegrations: false
   stateFile: "./launch-state.yaml"
@@ -27,10 +30,12 @@ experience:
     skipped: "已按你的选择跳过"
   oneActionPerRound: true
   doNotInventUi: true
+  registrationRequiredForDesign: false
 
 steps:
   - id: "basic-information"
-    title: "先告诉我三件事"
+    title: "补充当前上线或发信需要的信息"
+    askOnlyFieldsRequiredForCurrentStep: true
     fields:
       - id: "domain"
         label: "你的网站域名是什么？"
@@ -47,6 +52,7 @@ steps:
 
   - id: "existing-services"
     title: "这个域名现在还在使用什么？"
+    when: "dns-change-is-being-planned"
     fields:
       - id: "businessEmailInUse"
         label: "这个域名现在是否正在使用企业邮箱？"
@@ -60,6 +66,7 @@ steps:
 
   - id: "cloudflare-authorization"
     title: "连接 Cloudflare"
+    when: "authorized-deploy-or-online-inquiry-test-or-selected-r2-upload"
     actions:
       - label: "打开 Cloudflare 注册或登录"
         type: "browser-open-or-link"
@@ -77,6 +84,7 @@ steps:
 
   - id: "nameserver-update"
     title: "让域名指向新网站"
+    when: "dns-migration-is-required-and-approved"
     action:
       label: "打开域名购买平台的设置页面"
       type: "guided-user-action"
@@ -87,6 +95,7 @@ steps:
 
   - id: "resend-connection"
     title: "连接询盘邮件"
+    when: "ready-to-connect-or-test-real-email"
     actions:
       - label: "打开 Resend 注册或登录"
         type: "browser-open-or-link"
@@ -102,6 +111,7 @@ steps:
 
   - id: "resend-secret"
     title: "把邮件工具接到网站"
+    when: "sending-domain-verified-and-secure-destination-ready"
     actions:
       - label: "创建邮件发送密钥"
         type: "guided-user-action"
@@ -122,6 +132,7 @@ steps:
 
   - id: "live-chat"
     title: "要不要增加网站在线聊天？"
+    when: "pages-ready-and-live-chat-integration-stage"
     askOnlyIfUndecided: true
     fields:
       - id: "liveChatProvider"
@@ -144,6 +155,7 @@ steps:
 
   - id: "receipt-test"
     title: "确认客户的询盘真的能收到"
+    when: "authorized-test-deployment-and-inquiry-services-configured"
     actions:
       - label: "请检查指定邮箱，包括垃圾邮件"
         type: "user-receipt-confirmation"

@@ -1,4 +1,4 @@
-schemaVersion: 1
+schemaVersion: 2
 
 business:
   company: "待确认"
@@ -37,6 +37,7 @@ architecture:
 designSystem:
   briefFile: "./DESIGN.md"
   directionStatus: "proposed" # proposed | pending | approved
+  defaultDirection: "professional-premium-b2b-corporate" # 以客户品牌与产品为准，不硬套模板
   acquisitionReferences: [] # 分类/搜索意图/询盘路径的证据来源
   visualReferences: [] # 排版/摄影/留白的参考，与获客证据分开
   styling: "tailwind-v4"
@@ -58,11 +59,28 @@ designSystem:
   approvedScope: []
   externalDesignSkillsRequired: false
 
+contentHandoff:
+  trigger: "after-style-approval"
+  proactive: true
+  fullAssetPackRequiredToStart: false
+  acceptExistingBrochuresSpreadsheetsAndPhotos: true
+  customerContentApprovalRef: null
+  pendingMaterialsRef: null
+  productionRequiresVerifiedContent: true
+
 media:
   mode: "local" # local | r2
   manifestFile: null # 填项目实际内容模型/素材清单路径，不重复维护
   logicalAssetIds: true
-  verifiedBusinessImagesRequired: true
+  verifiedBusinessImagesRequired: true # 正式产品与企业证据；前期允许标记的设计示意
+  preview:
+    allowed: true
+    useAvailableImageGeneration: true # 无可用工具不谎称生成，不要求先注册生图服务
+    requireClearUsageRights: true
+    svgAsProductPhotoReplacement: false
+    labelRequired: true
+    noindexRequired: true
+    replaceProductIllustrationsBeforeProduction: true
   localDirectory: "./public/assets"
   r2:
     bucket: null
@@ -132,6 +150,8 @@ deployment:
 
 onboarding:
   proactiveAtLaunch: true
+  registrationTiming: "when-current-step-needs-service"
+  registrationRequiredForDesign: false
   intakeTemplate: "onboarding-intake.example.yaml"
   stateFile: "./launch-state.yaml"
   installMissingRequiredTools: true

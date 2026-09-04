@@ -1,13 +1,19 @@
 # 结构示例，不是客户资产；生成项目时合并到既有内容模型，勿重复维护。
-schemaVersion: 1
+schemaVersion: 2
 mode: "local" # local | r2；真实选择以项目契约为准
 assets:
   - id: "example-product-main"
     entityId: "example-product"
     role: "product" # product | factory | certificate | scene | decorative
     source: null # 客户文件、授权素材来源或明确标记的 AI 辅助图来源
+    sourceType: "pending" # pending | customer | licensed-web | ai-generated
     rightsStatus: "pending" # pending | confirmed
+    rightsEvidenceRef: null # 使用依据的受控记录；不要把私密授权文件提交到公开仓库
     contentStatus: "placeholder" # placeholder | verified | illustrative
+    usageScope: "preview-only" # preview-only | production；参考链接不作为网站 asset
+    customerApprovalRef: null # 真实产品对应关系与允许公开的确认，不是样式批准
+    replacementRequired: true
+    replacementAssetId: null # 保留替换前记录，避免不同产品的图混用
     sourceWidth: null
     sourceHeight: null
     fit: "contain"
