@@ -49,6 +49,8 @@ dist/
 
 交互默认渐进增强：导航和折叠优先使用原生 HTML/CSS，询盘表单用少量浏览器脚本调用 `/api/inquiry`。只有确实需要 React 状态的局部区域才 hydration；关闭 JavaScript 后，页面主要信息、链接和表单说明仍应可理解。
 
+样板、开发内容和最终生产共用内容模型、route resolver 与文档生成器；设计确认必须查看实际静态构建结果，而不是仅查看单页开发服务器。需要 hydration 时核对 React 官方 API 的适用范围与服务端/客户端输出一致性，不能把 `renderToStaticMarkup` 的结果当作可 hydration 输出。见 [React 官方说明](https://react.dev/reference/react-dom/server/renderToStaticMarkup)。
+
 例外：现有项目已经使用其他静态生成方案且满足本契约时继续使用；用户明确要求 Next.js 时可以使用静态导出，但仍须逐路由检查最终 HTML。
 
 ## 3. 内容真源

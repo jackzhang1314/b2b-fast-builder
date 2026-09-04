@@ -1,6 +1,6 @@
 # Cloudflare 运行与部署
 
-用于 Cloudflare Pages、Pages Functions、D1、Resend、Turnstile、R2、Wrangler、域名和自动部署。Cloudflare 与 Resend 的命令、限制、权限和计费会变化；执行前调用 `$cloudflare` 并检索当前官方文档，不凭本文猜最新参数。
+用于 Cloudflare Pages、Pages Functions、D1、Resend、Turnstile、R2、Wrangler、域名和自动部署。Cloudflare 与 Resend 的命令、限制、权限和计费会变化；执行前检索当前官方文档，可用时按需调用 `$cloudflare`。没有该 Skill 时仍按本文和官方资料执行，不因缺少其他 Skill 阻塞，也不凭本文猜最新参数。
 
 第一次配置客户账号、迁移 Nameserver、验证 Resend 发信域名或创建 API Key 时，先读 [账号与域名接入](account-and-domain-onboarding.md)。
 

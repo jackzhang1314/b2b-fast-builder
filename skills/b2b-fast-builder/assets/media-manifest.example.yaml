@@ -1,0 +1,18 @@
+# 结构示例，不是客户资产；生成项目时合并到既有内容模型，勿重复维护。
+schemaVersion: 1
+mode: "local" # local | r2；真实选择以项目契约为准
+assets:
+  - id: "example-product-main"
+    entityId: "example-product"
+    role: "product" # product | factory | certificate | scene | decorative
+    source: null # 客户文件、授权素材来源或明确标记的 AI 辅助图来源
+    rightsStatus: "pending" # pending | confirmed
+    contentStatus: "placeholder" # placeholder | verified | illustrative
+    sourceWidth: null
+    sourceHeight: null
+    fit: "contain"
+    focalPoint: null # cover 场景图可记录归一化 x/y
+    decorative: false
+    altByLocale: {} # 真实产品准确描述；纯装饰图片使用空字符串
+    # variants 的位置由 mode 对应解析器生成 URL，不在每页重复写路径。
+    variants: [] # 各项包含 width、height、contentType 与 localPath 或 objectKey

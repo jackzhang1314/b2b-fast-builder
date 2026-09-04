@@ -32,14 +32,14 @@ description: >-
 
 - 新站访谈、行业对标、关键词驱动分类、页面清单与询盘路径：读 [B2B 规划与转化](references/b2b-planning-and-conversion.md)。
 - 选择框架、静态预生成、多语言、metadata、sitemap、404 或检查构建产物：读 [静态 SEO 输出契约](references/static-seo-contract.md)。
-- 初始化 Tailwind v4、建立语义 Token、选择性使用 shadcn 或统一页面组件：读 [前端设计系统](references/frontend-design-system.md)。
+- 新建/改版的视觉方向、参考拆解、设计记忆、图片策略、Tailwind v4 与组件选择：读 [前端设计系统](references/frontend-design-system.md)。
 - 设置 typecheck、lint、test、build、静态 SEO 检查和部署拦截：读 [自动化质量闸门](references/automated-quality-gate.md)。
-- 使用 Cloudflare Pages、D1、Resend、Turnstile、R2、Wrangler、域名或部署：读 [Cloudflare 运行与部署](references/cloudflare-runtime-and-deployment.md)，并调用 `$cloudflare` 获取当前官方参数。
+- 使用 Cloudflare Pages、D1、Resend、Turnstile、R2、Wrangler、域名或部署：读 [Cloudflare 运行与部署](references/cloudflare-runtime-and-deployment.md)，核对当前官方参数；可用时按需调用 `$cloudflare`。
 - 首次接入 Cloudflare、迁移 DNS、注册 Resend、验证发信域名或创建 API Key：读 [账号与域名接入](references/account-and-domain-onboarding.md)。
 - 用户需要即时聊天、Tidio 注册引导、安装脚本、隐私配置或聊天验收：读 [Tidio 即时聊天接入](references/tidio-live-chat.md)。
-- 验收、PageSpeed、询盘测试、上线、回滚或交接：读 [测试与交接](references/testing-and-handoff.md)。
+- 截图/批注修改、局部更新、视觉验收、PageSpeed、询盘测试、上线或交接：读 [测试与交接](references/testing-and-handoff.md)。
 
-只读取当前阶段需要的参考；跨阶段实施时再组合读取。
+只读取当前阶段需要的参考；跨阶段实施时再组合读取。换图、改文案等小修改走测试与交接中的局部更新流程，不重启新站访谈或全站设计。
 
 ## 不可破坏的架构边界
 
@@ -71,7 +71,8 @@ description: >-
 - 可以使用 hydration 保留菜单、筛选和表单交互，但核心内容必须已存在于初始 HTML。
 - Pages Function 默认只匹配 `/api/*`；静态页面和静态资源不应无故调用 Function。
 - 多语言优先根据国家/语言策略选择独立域名、子域名或子目录；每种语言生成独立 HTML、canonical 与正确的 hreflang。
-- 涉及 React 性能与组件实现时调用 `$vercel-react-best-practices`；初始化或修改 shadcn 时调用 `$shadcn`，Tailwind v4 与 shadcn 联用时调用 `$tailwind-v4-shadcn`；视觉方向阶段调用 `$frontend-design`。不要只因 Skill 已安装就同时加载。
+- 外部 Skill 是可选增强，不是导入本目录后的硬依赖。视觉阶段可参考 `$frontend-design`；React 或 shadcn 实现可按需参考已安装的对应 Skill。缺失时使用本包参考与当前官方文档，不阻塞、不擅自安装其他 Skill、Hooks 或付费设计工具。
+- 外部建议须适配本项目的静态 HTML、真实证据与询盘边界；不得照搬 SPA 入口、把核心目录改成仅客户端加载，或为了视觉效果换框架。技术事实以项目版本和官方文档为准，具体适配见 [前端设计系统](references/frontend-design-system.md)。
 
 ## 标准工作流
 
@@ -97,9 +98,11 @@ description: >-
 
 关键事实不完整时标记 `待确认`，不要用模板假数据补齐。
 
-### 3. 先做三个样板页
+### 3. 确定设计方向，完成真实样板
 
-优先完成首页、一个分类页和一个产品详情页。它们共同验证品牌方向、导航、内容密度、产品筛选、参数、证据、CTA 和移动端。用户确认后再复用同一设计系统构建全站。
+把获客参考与视觉参考分开，先明确每类页面的买家任务。按 [设计记录模板](assets/design-brief.example.md) 在项目创建或补充 `DESIGN.md`，记录方向、Token 来源、图片规则与已确认选择；默认给一个有依据的方向，只有重要偏好不明时才提供少量首屏备选。
+
+优先完成首页、一个分类页和一个产品详情页；特殊业务可按差异补充样板。样板从第一天使用正式内容真源、route resolver 和静态文档生成器，预览实际构建产物，不先做 SPA 再返工。使用真实内容和素材，完成桌面/手机截图自查与定点修改，用户确认后再扩展全站。细则见前端设计系统与测试与交接。
 
 ### 4. 静态生成全部页面
 
@@ -130,7 +133,7 @@ Tidio 的聊天记录留在客户自己的 Tidio Inbox。除非用户另行要�
 
 ### 8. 交接 Agent 更新能力
 
-记录内容真源、route manifest、媒体模式、构建命令、部署命令、环境变量、询盘查询和回滚方法。后续 Agent 修改内容时必须先改真源、重新生成、检查 diff、验证静态 HTML，再部署；不得直接改 `dist`。
+记录内容真源、route manifest、`DESIGN.md`、媒体清单、构建/部署命令、环境变量、询盘查询和回滚方法。后续 Agent 按局部、模板或全站范围改真源，检查影响路由、重建、运行质量闸门并复核受影响页面；不得直接改 `dist` 或未经要求重做已确认设计。
 
 ## 两种媒体模式
 
@@ -170,6 +173,8 @@ Tidio 的聊天记录留在客户自己的 Tidio Inbox。除非用户另行要�
 - 标题、description、H1、canonical、hreflang、结构化数据、sitemap、robots 和 404 符合当前项目策略。
 - 页面分类来自买家任务和搜索数据，不来自老板主观图册目录。
 - 首屏说明卖什么、卖给谁、为什么可信、如何询盘。
+- 新站/改版的设计方向与样板确认有记录；设计取值来自代码 Token，`DESIGN.md` 解释规则而不维护第二套值。
+- 代表性页面有实际桌面/手机截图与问题处理记录，或明确未验证原因；构建通过和 PageSpeed 得分不能替代视觉验收。
 - 媒体模式已记录；`r2` 不是未启用却写成已完成的能力。
 - 询盘在邮件调用前写入 D1，失败可见、可重试。
 - 只有询盘成功入库才进入独立 `/thank-you/`；页面 `noindex`、不进 sitemap，转化事件使用唯一询盘编号去重且不传 PII。

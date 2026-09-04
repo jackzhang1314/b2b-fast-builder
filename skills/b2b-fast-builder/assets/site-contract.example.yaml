@@ -35,6 +35,10 @@ architecture:
   outputDirectory: "./dist"
 
 designSystem:
+  briefFile: "./DESIGN.md"
+  directionStatus: "proposed" # proposed | pending | approved
+  acquisitionReferences: [] # 分类/搜索意图/询盘路径的证据来源
+  visualReferences: [] # 排版/摄影/留白的参考，与获客证据分开
   styling: "tailwind-v4"
   vitePlugin: "@tailwindcss/vite"
   semanticTokensRequired: true
@@ -48,9 +52,17 @@ designSystem:
   componentSource: "project-owned"
   shadcnMode: "selective" # selective | none
   avoidUnusedClientJavascript: true
+  sampleUsesProductionRenderer: true
+  sampleApprovalSource: null # 真实用户确认来源，不以 Agent 自查代替
+  visualReviewFile: "./qa/visual-review.md"
+  approvedScope: []
+  externalDesignSkillsRequired: false
 
 media:
   mode: "local" # local | r2
+  manifestFile: null # 填项目实际内容模型/素材清单路径，不重复维护
+  logicalAssetIds: true
+  verifiedBusinessImagesRequired: true
   localDirectory: "./public/assets"
   r2:
     bucket: null
@@ -129,6 +141,9 @@ acceptance:
   conversionOnlyAfterInquiryStored: true
   viewports: [360, 390, 768, 1440]
   pageSpeedClaimRequiresEvidence: true
+  productionOutputPreviewRequired: true
+  visualEvidenceRequired: true
+  visualReviewStatus: "not-run" # not-run | issues-found | verified | user-approved
   uniqueIndexableTitles: true
   selfCanonicalMatchesRoute: true
   sitemapMatchesIndexableCanonicals: true
