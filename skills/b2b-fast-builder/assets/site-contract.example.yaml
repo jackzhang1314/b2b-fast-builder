@@ -130,6 +130,16 @@ deployment:
   blockOnQualityFailure: true
   authorized: false
 
+onboarding:
+  proactiveAtLaunch: true
+  intakeTemplate: "onboarding-intake.example.yaml"
+  stateFile: "./launch-state.yaml"
+  installMissingRequiredTools: true
+  secretInputMode: "detect-or-provider-dashboard"
+  ordinaryChatSecretsAllowed: false
+  verifyCustomerReceipt: true
+  askForLiveChatOnlyIfUndecided: true
+
 acceptance:
   routeManifestRequired: true
   htmlContainsPrimaryContent: true

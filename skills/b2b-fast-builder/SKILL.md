@@ -35,6 +35,7 @@ description: >-
 - 新建/改版的视觉方向、参考拆解、设计记忆、图片策略、Tailwind v4 与组件选择：读 [前端设计系统](references/frontend-design-system.md)。
 - 设置 typecheck、lint、test、build、静态 SEO 检查和部署拦截：读 [自动化质量闸门](references/automated-quality-gate.md)。
 - 使用 Cloudflare Pages、D1、Resend、Turnstile、R2、Wrangler、域名或部署：读 [Cloudflare 运行与部署](references/cloudflare-runtime-and-deployment.md)，核对当前官方参数；可用时按需调用 `$cloudflare`。
+- 页面建好后接着带小白上线、自动补齐工具、分轮注册授权或中断续接：读 [主动引导上线](references/guided-launch.md)。完整建站任务必须主动触发，不等用户提醒配置邮箱和聊天。
 - 首次接入 Cloudflare、迁移 DNS、注册 Resend、验证发信域名或创建 API Key：读 [账号与域名接入](references/account-and-domain-onboarding.md)。
 - 用户需要即时聊天、Tidio 注册引导、安装脚本、隐私配置或聊天验收：读 [Tidio 即时聊天接入](references/tidio-live-chat.md)。
 - 截图/批注修改、局部更新、视觉验收、PageSpeed、询盘测试、上线或交接：读 [测试与交接](references/testing-and-handoff.md)。
@@ -54,7 +55,7 @@ description: >-
 9. **Secret 不进入前端和仓库。** Resend、Turnstile、Cloudflare Token 只进入安全环境或 Pages Secret。
 10. **创建资源不等于获准上线。** 只读规划不创建云资源；部署、域名切换、生产写入必须属于用户明确要求的范围。
 11. **客户拥有基础设施。** 域名注册商、Cloudflare、Resend 和生产仓库默认使用客户自己的账号；服务商不得把续费、DNS、发信能力或源代码锁在自己的账号里。
-12. **把技术复杂度留给 Agent。** 面向非技术用户只询问域名、购买平台、收件邮箱等业务信息；能读取或自动配置的内容不让用户手抄。登录用浏览器授权，Secret 用加密输入框，不让用户在聊天中粘贴密码、Token 或 API Key。
+12. **把技术复杂度留给 Agent。** 必要工具先检查、缺失按官方渠道主动安装；普通资料可在聊天收集，登录优先浏览器授权。Secret 只进真正不写入对话/日志的安全渠道；宿主没有安全输入时带用户去官方 Secret 页面保存，不能虚构安全输入框。
 13. **质量闸门失败不得部署。** 路由清单必须传给静态验证器；任一类型、lint、测试、构建、路由 HTML、title、canonical 或 sitemap 检查失败，必须返回非零退出码并停止 Cloudflare 部署。
 14. **视觉值必须来自语义 Token。** 品牌色、文字色、背景、边框、圆角、阴影、间距和内容宽度使用统一设计变量；页面组件不得各自散落任意颜色和尺寸。
 15. **即时聊天不能替代可靠询盘。** Tidio 是用户明确选择后启用的第三方增强项；站内表单仍执行 D1 先入库、Resend 后通知。不得声称 Tidio 对话自动进入 D1，也不得因用户暂未提供 Tidio Public Key 阻塞建站。
@@ -71,7 +72,7 @@ description: >-
 - 可以使用 hydration 保留菜单、筛选和表单交互，但核心内容必须已存在于初始 HTML。
 - Pages Function 默认只匹配 `/api/*`；静态页面和静态资源不应无故调用 Function。
 - 多语言优先根据国家/语言策略选择独立域名、子域名或子目录；每种语言生成独立 HTML、canonical 与正确的 hreflang。
-- 外部 Skill 是可选增强，不是导入本目录后的硬依赖。视觉阶段可参考 `$frontend-design`；React 或 shadcn 实现可按需参考已安装的对应 Skill。缺失时使用本包参考与当前官方文档，不阻塞、不擅自安装其他 Skill、Hooks 或付费设计工具。
+- 外部 Skill 是可选增强，不是导入本目录后的硬依赖。视觉阶段可参考 `$frontend-design`；React 或 shadcn 实现可按需参考已安装的对应 Skill。缺失时使用本包参考与当前官方文档；必要的部署工具/官方 Skill 按主动引导上线中的规则补齐，不批量安装无关 Skill、Hooks 或付费设计工具。
 - 外部建议须适配本项目的静态 HTML、真实证据与询盘边界；不得照搬 SPA 入口、把核心目录改成仅客户端加载，或为了视觉效果换框架。技术事实以项目版本和官方文档为准，具体适配见 [前端设计系统](references/frontend-design-system.md)。
 
 ## 标准工作流
@@ -110,6 +111,8 @@ description: >-
 
 若用户确认 Tidio，由同一个完整文档生成器把经过校验的官方 loader 写在选定公开页面的 `</body>` 前。极速版是多页静态输出，不能只改根 `index.html` 后假设其他 HTML 自动继承。
 
+完整建站上线任务到此必须主动启动 [接入引导](references/guided-launch.md)：先检查工具和已知资料，再带用户完成账号、授权与配置。用户处理必要步骤时，可并行继续询盘代码与质量验证；不能把“页面做好了”当成询盘系统已交付。
+
 ### 5. 建立询盘闭环
 
 实现 `/api/inquiry`：校验字段和 Turnstile、去重、先写 D1，再调用 Resend，最后记录邮件状态。D1 保存成功后，前端携带非个人身份的询盘编号跳转到独立 `/thank-you/`；感谢页说明下一步并触发一次转化事件。Resend 失败但询盘已保存时仍可进入感谢页；数据库写入失败则不得跳转。
@@ -125,7 +128,7 @@ Tidio 的聊天记录留在客户自己的 Tidio Inbox。除非用户另行要�
 
 ### 7. 验证和部署
 
-首次上线先按 [账号与域名接入](references/account-and-domain-onboarding.md) 完成 Cloudflare 与 Resend onboarding。再按 [自动化质量闸门](references/automated-quality-gate.md) 将 typecheck、lint、test、build 和必须传入 route manifest 的静态验证串成一个命令。Cloudflare Pages 的 Build command 和人工部署命令都必须先运行该闸门；不允许绕过。浏览器验证桌面、手机、导航、404、询盘成功/失败和真实内容；部署后再从匿名网络完成一次端到端 smoke。
+首次上线按 [主动引导上线](references/guided-launch.md) 分轮接通 Cloudflare、Resend 与用户选择的聊天，记录接入进度。技术细节按 [账号与域名接入](references/account-and-domain-onboarding.md) 执行，不能只发一份注册清单后停止。按 [自动化质量闸门](references/automated-quality-gate.md) 将 typecheck、lint、test、build 和必须传入 route manifest 的静态验证串成一个命令。Cloudflare Pages 的 Build command 和人工部署命令都必须先运行该闸门；不允许绕过。浏览器验证桌面、手机、导航、404、询盘成功/失败和真实内容；部署后再从匿名网络完成一次端到端 smoke。
 
 启用 Tidio 时，质量闸门还必须验证目标 HTML 都且只包含一个客户 Public Key loader；生产 smoke 发送唯一前缀测试消息并由客户在 Tidio Inbox 回读，同时重测启用后的 PageSpeed。
 
@@ -183,4 +186,5 @@ Tidio 的聊天记录留在客户自己的 Tidio Inbox。除非用户另行要�
 - 静态验证必须传入 route manifest，并证明路由、HTML、唯一 title、自引用 canonical 与 sitemap 一致。
 - 若启用 Tidio，安装范围、Public Key 来源、隐私处理、逐页 loader 检查、真实消息验收和启用后的性能证据均已记录；若未启用，不把它写成已完成。
 - Secret 不在 Git、日志、客户端 bundle 或交接文档中。
+- 上线任务已验证账号/域名、生产 Secret 与真实邮件收件；Tidio 按用户选择接入并回读，或明确跳过。待用户/服务方处理的项目写出下一步，不把代码完成、API 发送成功或聊天气泡出现当成全部接通。
 - 交付内容真源、更新方法、部署方法、询盘查看方法、测试证据、已知风险与回滚路径。

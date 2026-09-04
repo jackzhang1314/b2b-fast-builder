@@ -1,4 +1,19 @@
-schemaVersion: 1
+# 声明式交互模板，不会凭空创建安全输入 UI。按宿主实际能力选择动作。
+schemaVersion: 2
+
+trigger:
+  event: "pages-ready-for-authorized-launch"
+  proactive: true
+  waitForUserToAskForIntegrations: false
+  stateFile: "./launch-state.yaml"
+  resumeFromFirstUnverifiedStep: true
+  verifyAfterUserAcknowledgement: true
+
+capabilityFallbacks:
+  noBrowser: "provide-official-link-and-one-step-instructions"
+  noSecureSecretInput: "guide-user-to-provider-secret-dashboard"
+  noShell: "use-authorized-connector-or-guided-dashboard"
+  noInstallPermission: "report-limitation-without-bypassing-policy"
 
 experience:
   audience: "non-technical"
@@ -8,6 +23,10 @@ experience:
     working: "正在帮你配置"
     done: "已经完成"
     userAction: "现在需要你操作一下"
+    externalWait: "正在等待平台生效"
+    skipped: "已按你的选择跳过"
+  oneActionPerRound: true
+  doNotInventUi: true
 
 steps:
   - id: "basic-information"
@@ -41,10 +60,20 @@ steps:
 
   - id: "cloudflare-authorization"
     title: "连接 Cloudflare"
-    action:
-      label: "打开 Cloudflare 并授权"
-      type: "browser-oauth"
-      allowCredentialPaste: false
+    actions:
+      - label: "打开 Cloudflare 注册或登录"
+        type: "browser-open-or-link"
+        url: "https://dash.cloudflare.com/"
+        expectedReply: "已登录"
+      - label: "允许当前工具配置网站"
+        type: "oauth-or-scoped-secret"
+        preferExistingAuthorization: true
+        localMode: "wrangler-browser-oauth"
+        remoteMode: "device-flow-if-supported"
+        fallback: "provider-secret-or-authorized-connector"
+        allowCredentialPaste: false
+        expectedReply: "已授权"
+    agentVerification: "whoami-and-target-account-permissions"
 
   - id: "nameserver-update"
     title: "让域名指向新网站"
@@ -53,21 +82,47 @@ steps:
       type: "guided-user-action"
       showOnlyAssignedNameservers: true
       requireExplicitConfirmation: true
+      expectedReply: "已修改"
+    agentVerification: "dns-status-and-preserved-existing-services"
 
   - id: "resend-connection"
     title: "连接询盘邮件"
     actions:
       - label: "打开 Resend 注册或登录"
-        type: "browser-open"
+        type: "browser-open-or-link"
+        url: "https://resend.com/"
+        expectedReply: "已注册"
+      - label: "验证发信网址"
+        type: "domain-connect-or-guided-dns"
+        sendingOnly: true
+        enableReceiving: false
+        agentSuppliesSendingDomain: true
+        expectedReply: "已授权"
+    agentVerification: "resend-sending-domain-verified"
+
+  - id: "resend-secret"
+    title: "把邮件工具接到网站"
+    actions:
+      - label: "创建邮件发送密钥"
+        type: "guided-user-action"
+        permission: "sending_access"
+        restrictToVerifiedDomain: true
+        requiresSecureDestinationReady: true
       - label: "粘贴邮件发送密钥"
-        type: "secure-secret-input"
+        type: "secure-input-if-available-otherwise-provider-dashboard"
         destination: "cloudflare-pages-secret:RESEND_API_KEY"
+        environment: "production"
+        requireEncrypt: true
         masked: true
         visibleToConversation: false
         persistInLogs: false
+        allowChatPaste: false
+        expectedReply: "已保存"
+    agentVerification: "secret-presence-environment-redeploy-and-test"
 
   - id: "live-chat"
     title: "要不要增加网站在线聊天？"
+    askOnlyIfUndecided: true
     fields:
       - id: "liveChatProvider"
         label: "是否接入 Tidio 在线聊天？以后也可以补装"
@@ -78,12 +133,25 @@ steps:
       when: "liveChatProvider == 接入 Tidio"
       actions:
         - label: "打开 Tidio 注册或登录"
-          type: "browser-open"
+          type: "browser-open-or-link"
           url: "https://www.tidio.com/"
+          expectedReply: "已注册"
         - label: "粘贴官方安装代码或 Public Key"
           type: "public-text-input"
           allowCredentialPaste: false
           rejectPrivateApiKey: true
+    agentVerification: "static-loader-and-customer-inbox-round-trip"
+
+  - id: "receipt-test"
+    title: "确认客户的询盘真的能收到"
+    actions:
+      - label: "请检查指定邮箱，包括垃圾邮件"
+        type: "user-receipt-confirmation"
+        expectedReply: "已收到"
+      - label: "启用了聊天时，请在 Tidio Inbox 回复测试消息"
+        type: "conditional-user-confirmation"
+        when: "liveChatProvider == 接入 Tidio"
+    agentVerification: "d1-record-email-id-receipt-thank-you-and-conversion"
 
 automation:
   inferBeforeAsking: true
@@ -91,6 +159,10 @@ automation:
   previewDnsChangesBeforeWrite: true
   verifyExistingEmailAfterNameserverChange: true
   verifyInquiryEndToEnd: true
+  installMissingRequiredToolsFromOfficialSources: true
+  reuseExistingCompatibleTools: true
+  installUnrelatedSkillsOrHooks: false
+  automaticPaidUpgrade: false
 
 forbiddenInputs:
   - "account_password"
@@ -98,3 +170,5 @@ forbiddenInputs:
   - "two_factor_code"
   - "recovery_code"
   - "browser_cookie"
+  - "secret_in_ordinary_chat"
+  - "oauth_callback_or_access_token"

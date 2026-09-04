@@ -4,6 +4,8 @@
 
 第一次配置客户账号、迁移 Nameserver、验证 Resend 发信域名或创建 API Key 时，先读 [账号与域名接入](account-and-domain-onboarding.md)。
 
+完整上线任务必须按 [主动引导上线](guided-launch.md) 检查环境，缺少必要 CLI 时从官方来源自动补齐，不等用户提出安装要求。以下命令均以已确认项目本地 Wrangler 安装且目标账号已授权为前提。
+
 ## 1. 固定架构
 
 ```text
@@ -45,6 +47,8 @@ npx wrangler whoami
 ```
 
 用户只负责浏览器登录和授权；Agent 不要求用户把 OAuth Token 粘贴进聊天。
+
+先核对当前版本支持的参数。远程环境无法接收 localhost 回调时，支持则使用 `wrangler login --device`，引导客户在工具返回的官方页面确认。系统凭据存储不可用时不得悄悄改为明文并声称安全；选择平台 Secret/已授权连接器等安全方式。`whoami` 用于确认目标账号，不读取或输出 Token。
 
 极速建站默认让客户把权威 DNS 交给自己的 Cloudflare 账号统一管理，但域名仍在原注册商持有和续费。切换前必须核对并迁移现有 DNS 记录；Wrangler 不作为通用 DNS 管理工具，DNS 自动化使用 Cloudflare API 或受控 IaC。
 
@@ -196,7 +200,9 @@ npx wrangler pages deploy dist --project-name "$PAGES_PROJECT_NAME"
 
 项目已存在时复用，不重复创建。命令名称、参数和输出解析以当前官方文档为准。
 
-Resend Key、Turnstile Secret 通过 Pages Secret 写入；普通收件地址和已确认的非敏感设置可放 Wrangler 配置。部署前检查 preview 与 production 使用的 Binding 和 Secret 是否一致但彼此隔离。
+Resend Key、Turnstile Secret 通过 Pages Secret 写入；普通收件地址和已确认的非敏感设置可放 Wrangler 配置。部署前核对 preview 与 production 所需配置名称，实际使用的数据库、收件地址及 Secret 按环境隔离，禁止测试误发生产客户。修改 Secret/Binding 后重新部署，不能只看控制台已保存就认为旧部署生效。
+
+Turnstile 由 Agent 在已授权账户创建/复用，核对正式主机名和测试主机名；公开 Site Key 可进前端，私有 Secret 只进 Pages Secret。不在正式网站使用测试密钥，未接通时不静默关闭反垃圾校验。
 
 ## 9. Agent 自动化边界
 

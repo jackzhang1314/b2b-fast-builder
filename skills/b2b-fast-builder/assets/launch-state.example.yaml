@@ -1,0 +1,52 @@
+# 声明式进度模板，不是可执行工作流或凭据存储。生成到客户项目本地，默认不提交公开仓库。
+schemaVersion: 1
+updatedAt: null
+contractFile: "./site-contract.yaml" # 复用项目实际契约，不重复维护域名/收件人
+allowedStatuses: [not_started, working, waiting_user, waiting_external, verified, skipped]
+scope:
+  deploymentAuthorized: false
+  dnsChangeApproved: false
+  liveChatDecision: "undecided" # undecided | tidio | skip
+environment:
+  shellAvailable: null
+  browserAvailable: null
+  secureSecretInputAvailable: null
+  packageManager: null
+  toolVersions: {} # 如 wrangler 的真实版本；不写命令输出全文
+  toolSources: {} # 经核对的官方 URL
+resources:
+  cloudflareAccountId: null
+  pagesProjectName: null
+  d1DatabaseId: null
+  sendingDomainId: null
+  tidioProjectId: null
+secretReferences:
+  - name: "RESEND_API_KEY"
+    destination: "cloudflare-pages"
+    environment: "production"
+    presenceVerified: false
+  - name: "TURNSTILE_SECRET_KEY"
+    destination: "cloudflare-pages"
+    environment: "production"
+    presenceVerified: false
+steps:
+  prerequisites: {status: not_started, evidenceRef: null}
+  cloudflareAuthorization: {status: not_started, evidenceRef: null}
+  dnsReadiness: {status: not_started, evidenceRef: null}
+  resendDomain: {status: not_started, evidenceRef: null}
+  sendingSecret: {status: not_started, evidenceRef: null}
+  productionDeployment: {status: not_started, evidenceRef: null}
+  inquiryStored: {status: not_started, evidenceRef: null}
+  emailReceived: {status: not_started, evidenceRef: null}
+  thankYouAndConversion: {status: not_started, evidenceRef: null}
+  liveChat: {status: not_started, evidenceRef: null}
+nextAction:
+  owner: "agent" # agent | user | provider
+  step: "prerequisites"
+  instruction: "检查已有配置、工具与授权，缺少必要工具时从官方来源安装。"
+  resumeCondition: null
+privacy:
+  storeSecretValues: false
+  storeOauthCodesOrCallbackUrls: false
+  storeInquiryBodies: false
+  publicCommitByDefault: false
